@@ -13,8 +13,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -66,21 +72,28 @@ public class MainActivity extends AppCompatActivity {
     private void performPlacesRequest() {
         // example
         // https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY
-        final String exampleURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY";
-        final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/place/nearbysearch/json";
         final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
+        final String exampleURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=" + GOOGLE_API_KEY;
+        final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/place/nearbysearch/json";
+
 
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
         // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, exampleURL,
-                new Response.Listener<String>() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, exampleURL,
+                null,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        String string = response;
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray object = response.getJSONArray("results");
+                            parseObjectArray(object);
+                        } catch (JSONException ex) {
+                            //?
+                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -89,6 +102,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        queue.add(request);
+    }
+
+    private void parseObjectArray(JSONArray jsonArray) {
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject place = jsonArray.getJSONObject(i);
+            }
+        } catch (JSONException ex) {
+
+        }
     }
 }
