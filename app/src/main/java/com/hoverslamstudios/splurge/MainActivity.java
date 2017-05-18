@@ -13,17 +13,19 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
+    private ArrayList<Place> nearbyPlaceList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +75,14 @@ public class MainActivity extends AppCompatActivity {
         // example
         // https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY
         final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
-        final String exampleURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=" + GOOGLE_API_KEY;
-        final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/place/nearbysearch/json";
+        final String priceLevel;
+        final String radius;
+        final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+                "location=40.5853,-105.0844&" +
+                "maxPriceLevel=4&" +
+                "radius=50000&" +
+                "type=restaurant&" +
+                "key=" + GOOGLE_API_KEY;
 
 
 
@@ -82,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
 
         // Request a string response from the provided URL.
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, exampleURL,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, foodURL,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -106,9 +114,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void parseObjectArray(JSONArray jsonArray) {
+        nearbyPlaceList = new ArrayList<Place>();
+
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject place = jsonArray.getJSONObject(i);
+                JSONObject placeJSON = jsonArray.getJSONObject(i);
+                Place place = new Place();
+                place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
+                place.longitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
+                place.name = placeJSON.has("name") ? placeJSON.getString("name") : "";
+                place.placeId = placeJSON.has("place_id") ? placeJSON.getString("place_id") : "";
+                place.rating = placeJSON.has("rating") ? placeJSON.getInt("rating") : 0;
+                place.priceLevel = placeJSON.has("price_level") ? placeJSON.getInt("price_level") : 0;
+                place.address = placeJSON.has("vicinity") ? placeJSON.getString("vicinity") : "";
+                place.types = placeJSON.has("types") ?  placeJSON.getJSONArray("types") : "";
+                nearbyPlaceList.add(place);
             }
         } catch (JSONException ex) {
 
