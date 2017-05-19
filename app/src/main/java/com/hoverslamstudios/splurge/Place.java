@@ -1,8 +1,10 @@
 package com.hoverslamstudios.splurge;
 
 
+import java.util.ArrayList;
+
 /**
- * Created by Jordan Davis on 5/17/2017.
+ * Created on 5/17/2017.
  */
 
 public class Place {
@@ -13,7 +15,7 @@ public class Place {
 	public int priceLevel;
 	public int rating;
 	public String address;
-	public Object types;
+	public ArrayList<String> types = new ArrayList<>();
 
 	public Place() {
 

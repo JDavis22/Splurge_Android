@@ -21,26 +21,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
     private ArrayList<Place> nearbyPlaceList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
     }
 
     @Override
@@ -116,8 +106,10 @@ public class MainActivity extends AppCompatActivity {
     private void parseObjectArray(JSONArray jsonArray) {
         nearbyPlaceList = new ArrayList<Place>();
 
+
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
+                boolean isLodging = false;
                 JSONObject placeJSON = jsonArray.getJSONObject(i);
                 Place place = new Place();
                 place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
@@ -127,8 +119,23 @@ public class MainActivity extends AppCompatActivity {
                 place.rating = placeJSON.has("rating") ? placeJSON.getInt("rating") : 0;
                 place.priceLevel = placeJSON.has("price_level") ? placeJSON.getInt("price_level") : 0;
                 place.address = placeJSON.has("vicinity") ? placeJSON.getString("vicinity") : "";
-                place.types = placeJSON.has("types") ?  placeJSON.getJSONArray("types") : "";
-                nearbyPlaceList.add(place);
+                JSONArray tempArray = placeJSON.has("types") ?  placeJSON.getJSONArray("types") : null;
+
+                if(tempArray != null) {
+                    for(int x = 0; x < tempArray.length(); x++) {
+                        place.types.add(tempArray.getString(x));
+                    }
+                }
+
+                for(int j = 0; j < place.types.size(); j++) {
+                    if(place.types.get(j).equals("lodging")) {
+                        isLodging = true;
+                    }
+                }
+
+                if(!isLodging) {
+                    nearbyPlaceList.add(place);
+                }
             }
         } catch (JSONException ex) {
 
