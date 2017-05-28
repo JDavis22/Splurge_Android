@@ -1,11 +1,16 @@
 package com.hoverslamstudios.splurge;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,8 +23,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,6 +35,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.NativeExpressAdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -39,8 +51,12 @@ import com.google.android.gms.location.LocationSettingsResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -48,9 +64,13 @@ public class MainActivity
 		GoogleApiClient.ConnectionCallbacks {
 
 	private TextInputEditText locationEditText;
+	private TextView restaurantText;
+	private NativeExpressAdView adNativeView;
+	private ProgressBar progressBar;
 	private ArrayList<Place> nearbyPlaceList;
 	private GoogleApiClient mGoogleApiClient;
 	private Location mLastLocation;
+	private Place currentPlace;
 	private String latitude;
 	private String longitude;
 
@@ -61,6 +81,10 @@ public class MainActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		bindViews();
+		// Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+		MobileAds.initialize(this, "ca-app-pub-6378196838372847~5315936214");
+		AdRequest adRequest = new AdRequest.Builder().build();
+		adNativeView.loadAd(adRequest);
 		checkPermissions();
 
 		// Create an instance of GoogleAPIClient.
@@ -118,19 +142,44 @@ public class MainActivity
 		getLocationButton.setOnClickListener(getLocationClickListener);
 
 		locationEditText = (TextInputEditText) findViewById(R.id.locationEditText);
+
+		restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
+		restaurantText.setOnClickListener(restaurantClickListener);
+
+		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+		adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
 	}
 
 	View.OnClickListener submitButtonClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			performPlacesRequest();
+			if(!locationEditText.getText().toString().isEmpty()) {
+				// show hide progress
+				progressBar.setVisibility(View.VISIBLE);
+				performPlacesRequest();
+			}
 		}
 	};
 
 	View.OnClickListener getLocationClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			performPlacesRequest();
+			// show hide progress
+			progressBar.setVisibility(View.VISIBLE);
+			getLastLocation();
+		}
+	};
+
+	TextView.OnClickListener restaurantClickListener = new TextView.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			// open map with address!
+			if(currentPlace != null) {
+				String url = "http://maps.google.com/maps?daddr=" + currentPlace.latitude + "," + currentPlace.longitude;
+				Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url));
+				startActivity(intent);
+			}
 		}
 	};
 
@@ -139,16 +188,9 @@ public class MainActivity
 
 		LocationRequest request = createLocationRequest();
 
-		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-				.addLocationRequest(request);
-
-		PendingResult<LocationSettingsResult> result =
-				LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
-						builder.build());
-
 		try {
 			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, this);
-		} catch(SecurityException ex) {
+		} catch (SecurityException ex) {
 
 		}
 	}
@@ -216,30 +258,57 @@ public class MainActivity
 
 	private void getLastLocation() {
 		checkPermissions();
-		try {
-			mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-					mGoogleApiClient);
-			if (mLastLocation != null) {
-				latitude = String.valueOf(mLastLocation.getLatitude());
-				longitude = String.valueOf(mLastLocation.getLongitude());
-				locationEditText.setText("Current Location");
-			}
-		} catch (SecurityException ex) {
 
+		LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		boolean gps_enabled = false;
+		boolean network_enabled = false;
+
+		try {
+			gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+		} catch (Exception ex) {
+		}
+
+		try {
+			network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+		} catch (Exception ex) {
+		}
+
+		if (!gps_enabled && !network_enabled) {
+			Snackbar.make(findViewById(R.id.mainContentView), "Please enable GPS in settings", Snackbar.LENGTH_LONG)
+					.setAction("Settings", new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							// settings intent
+							startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
+						}
+					}).show();
+		} else {
+			try {
+				mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+						mGoogleApiClient);
+				if (mLastLocation != null) {
+					latitude = String.valueOf(mLastLocation.getLatitude());
+					longitude = String.valueOf(mLastLocation.getLongitude());
+					locationEditText.setText("Current Location");
+
+					if(progressBar.getVisibility() == View.VISIBLE) {
+						progressBar.setVisibility(View.GONE);
+					}
+				}
+			} catch (SecurityException ex) {
+
+			}
 		}
 	}
 
 	private void performPlacesRequest() {
-		getLastLocation();
-		// example
-		// https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY
+		// show hide progress bar
 		final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
 		final String priceLevel;
-		final String radius;
 		final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
 				"location=" + getUserLocation() + "&" +
 				"maxPriceLevel=4&" +
-				"radius=50000&" +
+				"rankby=distance&" +
 				"type=restaurant&" +
 				"key=" + GOOGLE_API_KEY;
 
@@ -272,24 +341,47 @@ public class MainActivity
 	}
 
 	private String getUserLocation() {
-		if(!locationEditText.getText().toString().isEmpty()) {
+		if (!locationEditText.getText().toString().isEmpty()) {
 			if (locationEditText.getText().toString().equals("Current Location")) {
 				return latitude + "," + longitude;
 			} else {
-				return locationEditText.getText().toString();
+				return getLatLng(locationEditText.getText().toString());
 			}
 		}
 
 		return null;
 	}
 
-	private void parseObjectArray(JSONArray jsonArray) {
-		nearbyPlaceList = new ArrayList<Place>();
+	private String getLatLng(String searchAddress) {
+		Geocoder coder = new Geocoder(this);
+		List<Address> address;
 
+		try {
+			address = coder.getFromLocationName(searchAddress,1);
+			if (address==null) {
+				return null;
+			}
+			Address location=address.get(0);
+
+			latitude = String.valueOf(location.getLatitude());
+			longitude = String.valueOf(location.getLongitude());
+
+			return latitude + "," + longitude;
+		} catch (IOException ex) {
+			locationEditText.setText(null);
+		}
+
+		return null;
+	}
+
+	private void parseObjectArray(JSONArray jsonArray) {
+		nearbyPlaceList = new ArrayList<>();
 
 		try {
 			for (int i = 0; i < jsonArray.length(); i++) {
 				boolean isLodging = false;
+				boolean isDuplicate = false;
+
 				JSONObject placeJSON = jsonArray.getJSONObject(i);
 				Place place = new Place();
 				place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
@@ -313,12 +405,38 @@ public class MainActivity
 					}
 				}
 
-				if (!isLodging) {
+				// check for duplicate places
+				for(int x = 0; x < nearbyPlaceList.size(); x++) {
+					if(place.name.equalsIgnoreCase(nearbyPlaceList.get(x).name)) {
+						isDuplicate = true;
+					}
+				}
+
+				if (!isLodging || isDuplicate) {
 					nearbyPlaceList.add(place);
 				}
 			}
 		} catch (JSONException ex) {
 
 		}
+
+		if (nearbyPlaceList.size() > 0) {
+			showRandomPlace();
+		}
+	}
+
+	private void showRandomPlace() {
+		Random random = new Random();
+		int index = random.nextInt(nearbyPlaceList.size() - 1);
+		currentPlace = nearbyPlaceList.get(index);
+		TextView titleText = (TextView) findViewById(R.id.restaurantTitleText);
+		titleText.setText(currentPlace.name);
+
+		if(progressBar.getVisibility() == View.VISIBLE) {
+			progressBar.setVisibility(View.GONE);
+		}
+
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 	}
 }

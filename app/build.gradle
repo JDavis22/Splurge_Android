@@ -7,8 +7,6 @@ android {
         applicationId "com.hoverslamstudios.splurge"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
     }
@@ -30,5 +28,10 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.google.android.gms:play-services-location:10.2.6'
+    compile 'com.google.android.gms:play-services-ads:10.2.6'
     testCompile 'junit:junit:4.12'
+    compile 'com.google.firebase:firebase-ads:10.2.6'
 }
+
+
+apply plugin: 'com.google.gms.google-services'
