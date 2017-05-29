@@ -58,7 +58,6 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="20dp"
         android:background="@color/colorAccent"
-        android:elevation="24dp"
         android:text="Search"
         app:layout_constraintHorizontal_bias="0.899"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -74,7 +73,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:background="@color/colorAccent"
-        android:elevation="24dp"
         android:text="Get Location"
         app:layout_constraintBaseline_toBaselineOf="@+id/searchButton"
         app:layout_constraintEnd_toStartOf="@+id/searchButton"
@@ -123,7 +121,8 @@
             android:textColor="@color/colorAccent"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="-9dp"/>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -140,6 +139,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        ads:layout_constraintTop_toBottomOf="@+id/foodCardLayout"
+        ads:layout_constraintVertical_bias="1.0"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.health.ServiceHealthStats;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -81,10 +82,11 @@ public class MainActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		bindViews();
-		// Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+
 		MobileAds.initialize(this, "ca-app-pub-6378196838372847~5315936214");
 		AdRequest adRequest = new AdRequest.Builder().build();
 		adNativeView.loadAd(adRequest);
+
 		checkPermissions();
 
 		// Create an instance of GoogleAPIClient.
@@ -210,12 +212,12 @@ public class MainActivity
 
 	@Override
 	public void onLocationChanged(Location location) {
-		String.valueOf(location);
+
 	}
 
 	protected LocationRequest createLocationRequest() {
 		LocationRequest mLocationRequest = new LocationRequest();
-		mLocationRequest.setInterval(10000);
+		mLocationRequest.setInterval(50000);
 		mLocationRequest.setFastestInterval(5000);
 		mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 		return mLocationRequest;
