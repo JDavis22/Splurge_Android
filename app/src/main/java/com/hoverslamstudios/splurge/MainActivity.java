@@ -276,6 +276,9 @@ public class MainActivity
 		}
 
 		if (!gps_enabled && !network_enabled) {
+			if(progressBar.getVisibility() == View.VISIBLE) {
+				progressBar.setVisibility(View.GONE);
+			}
 			Snackbar.make(findViewById(R.id.mainContentView), "Please enable GPS in settings", Snackbar.LENGTH_LONG)
 					.setAction("Settings", new View.OnClickListener() {
 						@Override
@@ -298,7 +301,9 @@ public class MainActivity
 					}
 				}
 			} catch (SecurityException ex) {
-
+				if(progressBar.getVisibility() == View.VISIBLE) {
+					progressBar.setVisibility(View.GONE);
+				}
 			}
 		}
 	}
@@ -329,13 +334,18 @@ public class MainActivity
 							parseObjectArray(object);
 						} catch (JSONException ex) {
 							//?
+							if(progressBar.getVisibility() == View.VISIBLE) {
+								progressBar.setVisibility(View.GONE);
+							}
 						}
 
 					}
 				}, new Response.ErrorListener() {
 			@Override
 			public void onErrorResponse(VolleyError error) {
-
+				if(progressBar.getVisibility() == View.VISIBLE) {
+					progressBar.setVisibility(View.GONE);
+				}
 			}
 		});
 		// Add the request to the RequestQueue.
@@ -371,8 +381,14 @@ public class MainActivity
 			return latitude + "," + longitude;
 		} catch (IOException ex) {
 			locationEditText.setText(null);
+			if(progressBar.getVisibility() == View.VISIBLE) {
+				progressBar.setVisibility(View.GONE);
+			}
 		}
 
+		if(progressBar.getVisibility() == View.VISIBLE) {
+			progressBar.setVisibility(View.GONE);
+		}
 		return null;
 	}
 
@@ -419,11 +435,17 @@ public class MainActivity
 				}
 			}
 		} catch (JSONException ex) {
-
+			if(progressBar.getVisibility() == View.VISIBLE) {
+				progressBar.setVisibility(View.GONE);
+			}
 		}
 
 		if (nearbyPlaceList.size() > 0) {
 			showRandomPlace();
+		} else {
+			if(progressBar.getVisibility() == View.VISIBLE) {
+				progressBar.setVisibility(View.GONE);
+			}
 		}
 	}
 
