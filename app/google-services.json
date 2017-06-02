@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "521557564072",
+    "firebase_url": "https://splurge-67b68.firebaseio.com",
+    "project_id": "splurge-67b68",
+    "storage_bucket": "splurge-67b68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521557564072:android:49d476a9a58f57a1",
+        "android_client_info": {
+          "package_name": "com.hoverslamstudios.splurge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521557564072-3utu64ijsjar9blfo16p6chu534qi9in.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hoverslamstudios.splurge",
+            "certificate_hash": "2c20e5bdc3c7088554b11e9ef04a78c8bf7b0f92"
+          }
+        },
+        {
+          "client_id": "521557564072-o92ipvg43ii7gh0d3r5c0lhjn4llqqpg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7McmyF9SnxYHCSNjIJp5SHcqXZqqxI-g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521557564072-o92ipvg43ii7gh0d3r5c0lhjn4llqqpg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
