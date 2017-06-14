@@ -4,15 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.health.ServiceHealthStats;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -21,12 +19,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -37,22 +33,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.NativeExpressAdView;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,6 +53,8 @@ public class MainActivity
 		implements com.google.android.gms.location.LocationListener,
 		GoogleApiClient.ConnectionCallbacks {
 
+	private static final String AD_UNIT_ID = "ca-app-pub-6378196838372847/2222869010";
+	private static final String APP_ID = "";
 	private TextInputEditText locationEditText;
 	private TextView restaurantText;
 	private NativeExpressAdView adNativeView;
@@ -83,7 +74,7 @@ public class MainActivity
 		setSupportActionBar(toolbar);
 		bindViews();
 
-		MobileAds.initialize(this, "ca-app-pub-6378196838372847~5315936214");
+		MobileAds.initialize(this, "ca-app-pub-6378196838372847/2222869010");
 		AdRequest adRequest = new AdRequest.Builder().build();
 		adNativeView.loadAd(adRequest);
 
@@ -98,12 +89,12 @@ public class MainActivity
 		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.menu_main, menu);
+//		return true;
+//	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -151,6 +142,7 @@ public class MainActivity
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 		adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
+
 	}
 
 	View.OnClickListener submitButtonClickListener = new View.OnClickListener() {
@@ -454,6 +446,7 @@ public class MainActivity
 		int index = random.nextInt(nearbyPlaceList.size() - 1);
 		currentPlace = nearbyPlaceList.get(index);
 		TextView titleText = (TextView) findViewById(R.id.restaurantTitleText);
+		titleText.setPaintFlags(titleText.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
 		titleText.setText(currentPlace.name);
 
 		if(progressBar.getVisibility() == View.VISIBLE) {
