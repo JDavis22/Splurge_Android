@@ -74,7 +74,7 @@ public class MainActivity
 		setSupportActionBar(toolbar);
 		bindViews();
 
-		MobileAds.initialize(this, "ca-app-pub-6378196838372847/2222869010");
+		MobileAds.initialize(this, AD_UNIT_ID);
 		AdRequest adRequest = new AdRequest.Builder().build();
 		adNativeView.loadAd(adRequest);
 
@@ -303,9 +303,16 @@ public class MainActivity
 	private void performPlacesRequest() {
 		// show hide progress bar
 		final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
-		final String priceLevel;
+		String userLocation = getUserLocation();
+
+		if(userLocation == null || userLocation.isEmpty()) {
+			progressBar.setVisibility(View.GONE);
+			locationEditText.setText("");
+			return;
+		}
+
 		final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
-				"location=" + getUserLocation() + "&" +
+				"location=" + userLocation + "&" +
 				"maxPriceLevel=4&" +
 				"rankby=distance&" +
 				"type=restaurant&" +
@@ -359,18 +366,23 @@ public class MainActivity
 	private String getLatLng(String searchAddress) {
 		Geocoder coder = new Geocoder(this);
 		List<Address> address;
+		Address location;
 
 		try {
 			address = coder.getFromLocationName(searchAddress,1);
 			if (address==null) {
 				return null;
 			}
-			Address location=address.get(0);
+			if(address.size() >= 1) {
+				location = address.get(0);
+				latitude = String.valueOf(location.getLatitude());
+				longitude = String.valueOf(location.getLongitude());
+				return latitude + "," + longitude;
+			} else {
+				return "";
+			}
 
-			latitude = String.valueOf(location.getLatitude());
-			longitude = String.valueOf(location.getLongitude());
 
-			return latitude + "," + longitude;
 		} catch (IOException ex) {
 			locationEditText.setText(null);
 			if(progressBar.getVisibility() == View.VISIBLE) {
