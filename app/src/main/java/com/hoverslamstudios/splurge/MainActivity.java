@@ -49,45 +49,52 @@ import java.util.List;
 import java.util.Random;
 
 public class MainActivity
-		extends AppCompatActivity
-		implements com.google.android.gms.location.LocationListener,
-		GoogleApiClient.ConnectionCallbacks {
+        extends AppCompatActivity
+        implements com.google.android.gms.location.LocationListener,
+        GoogleApiClient.ConnectionCallbacks {
 
-	private static final String AD_UNIT_ID = "ca-app-pub-6378196838372847/2222869010";
-	private static final String APP_ID = "";
-	private TextInputEditText locationEditText;
-	private TextView restaurantText;
-	private NativeExpressAdView adNativeView;
-	private ProgressBar progressBar;
-	private ArrayList<Place> nearbyPlaceList;
-	private GoogleApiClient mGoogleApiClient;
-	private Location mLastLocation;
-	private Place currentPlace;
-	private String latitude;
-	private String longitude;
+    private static final String AD_UNIT_ID = "ca-app-pub-6378196838372847/2222869010";
+    private static final String APP_ID = "";
+    private TextInputEditText locationEditText;
+    private TextView restaurantText;
+    private NativeExpressAdView adNativeView;
+    private ProgressBar progressBar;
+    private ArrayList<Place> nearbyPlaceList;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private Place currentPlace;
+    private String latitude;
+    private String longitude;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
-		bindViews();
+    public enum PRICE {
+        BUDGET,
+        CHEAP,
+        MODERATE,
+        EXPENSIVE
+    }
 
-		MobileAds.initialize(this, AD_UNIT_ID);
-		AdRequest adRequest = new AdRequest.Builder().build();
-		adNativeView.loadAd(adRequest);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        bindViews();
 
-		checkPermissions();
+        MobileAds.initialize(this, AD_UNIT_ID);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adNativeView.loadAd(adRequest);
 
-		// Create an instance of GoogleAPIClient.
-		if (mGoogleApiClient == null) {
-			mGoogleApiClient = new GoogleApiClient.Builder(this)
-					.addConnectionCallbacks(this)
-					.addApi(LocationServices.API)
-					.build();
-		}
-	}
+        checkPermissions();
+
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
 
 //	@Override
 //	public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,376 +103,382 @@ public class MainActivity
 //		return true;
 //	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
-		}
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
 
-		return super.onOptionsItemSelected(item);
-	}
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	public void onStart() {
-		mGoogleApiClient.connect();
-		super.onStart();
-	}
+    @Override
+    public void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
 
-	@Override
-	public void onStop() {
-		super.onStop();
-	}
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
-	private void bindViews() {
-		Button submitButton = (Button) findViewById(R.id.searchButton);
-		submitButton.setOnClickListener(submitButtonClickListener);
+    private void bindViews() {
+        Button submitButton = (Button) findViewById(R.id.searchButton);
+        submitButton.setOnClickListener(submitButtonClickListener);
 
-		Button getLocationButton = (Button) findViewById(R.id.getLocationButton);
-		getLocationButton.setOnClickListener(getLocationClickListener);
+        Button getLocationButton = (Button) findViewById(R.id.getLocationButton);
+        getLocationButton.setOnClickListener(getLocationClickListener);
 
-		locationEditText = (TextInputEditText) findViewById(R.id.locationEditText);
+        locationEditText = (TextInputEditText) findViewById(R.id.locationEditText);
 
-		restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
-		restaurantText.setOnClickListener(restaurantClickListener);
+        restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
+        restaurantText.setOnClickListener(restaurantClickListener);
 
-		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-		adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
+        adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
 
-	}
+    }
 
-	View.OnClickListener submitButtonClickListener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if(!locationEditText.getText().toString().isEmpty()) {
-				// show hide progress
-				progressBar.setVisibility(View.VISIBLE);
-				performPlacesRequest();
-			}
-		}
-	};
+    View.OnClickListener submitButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!locationEditText.getText().toString().isEmpty()) {
+                // show hide progress
+                progressBar.setVisibility(View.VISIBLE);
+                performPlacesRequest();
+            }
+        }
+    };
 
-	View.OnClickListener getLocationClickListener = new View.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// show hide progress
-			progressBar.setVisibility(View.VISIBLE);
-			getLastLocation();
-		}
-	};
+    View.OnClickListener getLocationClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // show hide progress
+            progressBar.setVisibility(View.VISIBLE);
+            getLastLocation();
+        }
+    };
 
-	TextView.OnClickListener restaurantClickListener = new TextView.OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// open map with address!
-			if(currentPlace != null) {
-				String url = "http://maps.google.com/maps?daddr=" + currentPlace.latitude + "," + currentPlace.longitude;
-				Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url));
-				startActivity(intent);
-			}
-		}
-	};
+    TextView.OnClickListener restaurantClickListener = new TextView.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // open map with address!
+            if (currentPlace != null) {
+                String url = "http://maps.google.com/maps?daddr=" + currentPlace.latitude + "," + currentPlace.longitude;
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+            }
+        }
+    };
 
-	private void startLocationUpdates() {
-		checkPermissions();
+    private void startLocationUpdates() {
+        checkPermissions();
 
-		LocationRequest request = createLocationRequest();
+        LocationRequest request = createLocationRequest();
 
-		try {
-			LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, this);
-		} catch (SecurityException ex) {
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, request, this);
+        } catch (SecurityException ex) {
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * LISTENER METHODS
-	 */
-	@Override
-	public void onConnected(@Nullable Bundle bundle) {
-		startLocationUpdates();
-	}
+    /**
+     * LISTENER METHODS
+     */
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        startLocationUpdates();
+    }
 
-	@Override
-	public void onConnectionSuspended(int i) {
+    @Override
+    public void onConnectionSuspended(int i) {
 
-	}
+    }
 
-	@Override
-	public void onLocationChanged(Location location) {
+    @Override
+    public void onLocationChanged(Location location) {
 
-	}
+    }
 
-	protected LocationRequest createLocationRequest() {
-		LocationRequest mLocationRequest = new LocationRequest();
-		mLocationRequest.setInterval(50000);
-		mLocationRequest.setFastestInterval(5000);
-		mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-		return mLocationRequest;
-	}
+    protected LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(50000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        return mLocationRequest;
+    }
 
-	private void checkPermissions() {
-		if (ContextCompat.checkSelfPermission(this,
-				Manifest.permission.ACCESS_COARSE_LOCATION)
-				== PackageManager.PERMISSION_GRANTED) {
-			// we have permissions...
-		} else {
-			ActivityCompat.requestPermissions(this,
-					new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PermissionsHelper.LOCATION);
-		}
-	}
+    private void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // we have permissions...
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PermissionsHelper.LOCATION);
+        }
+    }
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode,
-	                                       @NonNull String permissions[], @NonNull int[] grantResults) {
-		switch (requestCode) {
-			case PermissionsHelper.LOCATION: {
-				// If request is cancelled, the result arrays are empty.
-				if (grantResults.length > 0
-						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					performPlacesRequest();
-				} else if (grantResults.length > 0 &&
-						grantResults[0] == PackageManager.PERMISSION_DENIED) {
-					Snackbar.make(findViewById(R.id.mainContentView), "Please enable location permissions in app settings", Snackbar.LENGTH_LONG)
-							.setAction("Settings", new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									// settings intent
-									startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
-								}
-							}).show();
-				}
-			}
-		}
-	}
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PermissionsHelper.LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    performPlacesRequest();
+                } else if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Snackbar.make(findViewById(R.id.mainContentView), "Please enable location permissions in app settings", Snackbar.LENGTH_LONG)
+                            .setAction("Settings", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // settings intent
+                                    startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
+                                }
+                            }).show();
+                }
+            }
+        }
+    }
 
-	private void getLastLocation() {
-		checkPermissions();
+    private void getLastLocation() {
+        checkPermissions();
 
-		LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		boolean gps_enabled = false;
-		boolean network_enabled = false;
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
 
-		try {
-			gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-		} catch (Exception ex) {
-		}
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+        }
 
-		try {
-			network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-		} catch (Exception ex) {
-		}
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+        }
 
-		if (!gps_enabled && !network_enabled) {
-			if(progressBar.getVisibility() == View.VISIBLE) {
-				progressBar.setVisibility(View.GONE);
-			}
-			Snackbar.make(findViewById(R.id.mainContentView), "Please enable GPS in settings", Snackbar.LENGTH_LONG)
-					.setAction("Settings", new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							// settings intent
-							startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
-						}
-					}).show();
-		} else {
-			try {
-				mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-						mGoogleApiClient);
-				if (mLastLocation != null) {
-					latitude = String.valueOf(mLastLocation.getLatitude());
-					longitude = String.valueOf(mLastLocation.getLongitude());
-					locationEditText.setText("Current Location");
+        if (!gps_enabled && !network_enabled) {
+            if (progressBar.getVisibility() == View.VISIBLE) {
+                progressBar.setVisibility(View.GONE);
+            }
+            Snackbar.make(findViewById(R.id.mainContentView), "Please enable GPS in settings", Snackbar.LENGTH_LONG)
+                    .setAction("Settings", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // settings intent
+                            startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
+                        }
+                    }).show();
+        } else {
+            try {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                        mGoogleApiClient);
+                if (mLastLocation != null) {
+                    latitude = String.valueOf(mLastLocation.getLatitude());
+                    longitude = String.valueOf(mLastLocation.getLongitude());
+                    locationEditText.setText("Current Location");
 
-					if(progressBar.getVisibility() == View.VISIBLE) {
-						progressBar.setVisibility(View.GONE);
-					}
-				}
-			} catch (SecurityException ex) {
-				if(progressBar.getVisibility() == View.VISIBLE) {
-					progressBar.setVisibility(View.GONE);
-				}
-			}
-		}
-	}
+                    if (progressBar.getVisibility() == View.VISIBLE) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                } else if (progressBar.getVisibility() == View.VISIBLE) {
+                    progressBar.setVisibility(View.GONE);
 
-	private void performPlacesRequest() {
-		// show hide progress bar
-		final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
-		String userLocation = getUserLocation();
+                    Snackbar.make(findViewById(R.id.mainContentView), "Unable to get location", Snackbar.LENGTH_LONG);
+                }
+            } catch (SecurityException ex) {
+                if (progressBar.getVisibility() == View.VISIBLE) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
 
-		if(userLocation == null || userLocation.isEmpty()) {
-			progressBar.setVisibility(View.GONE);
-			locationEditText.setText("");
-			return;
-		}
+    private void performPlacesRequest() {
+        // show hide progress bar
+        final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
+        String userLocation = getUserLocation();
 
-		final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
-				"location=" + userLocation + "&" +
-				"maxPriceLevel=4&" +
-				"rankby=distance&" +
-				"type=restaurant&" +
-				"key=" + GOOGLE_API_KEY;
+        if (userLocation == null || userLocation.isEmpty()) {
+            progressBar.setVisibility(View.GONE);
+            locationEditText.setText("");
+            return;
+        }
 
-
-		// Instantiate the RequestQueue.
-		RequestQueue queue = Volley.newRequestQueue(this);
-
-		// Request a string response from the provided URL.
-		JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, foodURL,
-				null,
-				new Response.Listener<JSONObject>() {
-					@Override
-					public void onResponse(JSONObject response) {
-						try {
-							JSONArray object = response.getJSONArray("results");
-							parseObjectArray(object);
-						} catch (JSONException ex) {
-							//?
-							if(progressBar.getVisibility() == View.VISIBLE) {
-								progressBar.setVisibility(View.GONE);
-							}
-						}
-
-					}
-				}, new Response.ErrorListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				if(progressBar.getVisibility() == View.VISIBLE) {
-					progressBar.setVisibility(View.GONE);
-				}
-			}
-		});
-		// Add the request to the RequestQueue.
-		queue.add(request);
-	}
-
-	private String getUserLocation() {
-		if (!locationEditText.getText().toString().isEmpty()) {
-			if (locationEditText.getText().toString().equals("Current Location")) {
-				return latitude + "," + longitude;
-			} else {
-				return getLatLng(locationEditText.getText().toString());
-			}
-		}
-
-		return null;
-	}
-
-	private String getLatLng(String searchAddress) {
-		Geocoder coder = new Geocoder(this);
-		List<Address> address;
-		Address location;
-
-		try {
-			address = coder.getFromLocationName(searchAddress,1);
-			if (address==null) {
-				return null;
-			}
-			if(address.size() >= 1) {
-				location = address.get(0);
-				latitude = String.valueOf(location.getLatitude());
-				longitude = String.valueOf(location.getLongitude());
-				return latitude + "," + longitude;
-			} else {
-				return "";
-			}
+        final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+                "location=" + userLocation + "&" +
+                "maxPriceLevel=4&" +
+                "rankby=distance&" +
+                "type=restaurant&" +
+                "key=" + GOOGLE_API_KEY;
 
 
-		} catch (IOException ex) {
-			locationEditText.setText(null);
-			if(progressBar.getVisibility() == View.VISIBLE) {
-				progressBar.setVisibility(View.GONE);
-			}
-		}
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-		if(progressBar.getVisibility() == View.VISIBLE) {
-			progressBar.setVisibility(View.GONE);
-		}
-		return null;
-	}
+        // Request a string response from the provided URL.
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, foodURL,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray object = response.getJSONArray("results");
+                            parseObjectArray(object);
+                        } catch (JSONException ex) {
+                            //?
+                            if (progressBar.getVisibility() == View.VISIBLE) {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
 
-	private void parseObjectArray(JSONArray jsonArray) {
-		nearbyPlaceList = new ArrayList<>();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (progressBar.getVisibility() == View.VISIBLE) {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(request);
+    }
 
-		try {
-			for (int i = 0; i < jsonArray.length(); i++) {
-				boolean isLodging = false;
-				boolean isDuplicate = false;
+    private String getUserLocation() {
+        if (!locationEditText.getText().toString().isEmpty()) {
+            if (locationEditText.getText().toString().equals("Current Location")) {
+                return latitude + "," + longitude;
+            } else {
+                return getLatLng(locationEditText.getText().toString());
+            }
+        }
 
-				JSONObject placeJSON = jsonArray.getJSONObject(i);
-				Place place = new Place();
-				place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
-				place.longitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
-				place.name = placeJSON.has("name") ? placeJSON.getString("name") : "";
-				place.placeId = placeJSON.has("place_id") ? placeJSON.getString("place_id") : "";
-				place.rating = placeJSON.has("rating") ? placeJSON.getInt("rating") : 0;
-				place.priceLevel = placeJSON.has("price_level") ? placeJSON.getInt("price_level") : 0;
-				place.address = placeJSON.has("vicinity") ? placeJSON.getString("vicinity") : "";
-				JSONArray tempArray = placeJSON.has("types") ? placeJSON.getJSONArray("types") : null;
+        return null;
+    }
 
-				if (tempArray != null) {
-					for (int x = 0; x < tempArray.length(); x++) {
-						place.types.add(tempArray.getString(x));
-					}
-				}
+    private String getLatLng(String searchAddress) {
+        Geocoder coder = new Geocoder(this);
+        List<Address> address;
+        Address location;
 
-				for (int j = 0; j < place.types.size(); j++) {
-					if (place.types.get(j).equals("lodging")) {
-						isLodging = true;
-					}
-				}
+        try {
+            address = coder.getFromLocationName(searchAddress, 1);
+            if (address == null) {
+                return null;
+            }
+            if (address.size() >= 1) {
+                location = address.get(0);
+                latitude = String.valueOf(location.getLatitude());
+                longitude = String.valueOf(location.getLongitude());
+                return latitude + "," + longitude;
+            } else {
+                return "";
+            }
 
-				// check for duplicate places
-				for(int x = 0; x < nearbyPlaceList.size(); x++) {
-					if(place.name.equalsIgnoreCase(nearbyPlaceList.get(x).name)) {
-						isDuplicate = true;
-					}
-				}
 
-				if (!isLodging || isDuplicate) {
-					nearbyPlaceList.add(place);
-				}
-			}
-		} catch (JSONException ex) {
-			if(progressBar.getVisibility() == View.VISIBLE) {
-				progressBar.setVisibility(View.GONE);
-			}
-		}
+        } catch (IOException ex) {
+            locationEditText.setText(null);
+            if (progressBar.getVisibility() == View.VISIBLE) {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
 
-		if (nearbyPlaceList.size() > 0) {
-			showRandomPlace();
-		} else {
-			if(progressBar.getVisibility() == View.VISIBLE) {
-				progressBar.setVisibility(View.GONE);
-			}
-		}
-	}
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            progressBar.setVisibility(View.GONE);
+        }
+        return null;
+    }
 
-	private void showRandomPlace() {
-		Random random = new Random();
-		int index = random.nextInt(nearbyPlaceList.size() - 1);
-		currentPlace = nearbyPlaceList.get(index);
-		TextView titleText = (TextView) findViewById(R.id.restaurantTitleText);
-		titleText.setPaintFlags(titleText.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
-		titleText.setText(currentPlace.name);
+    private void parseObjectArray(JSONArray jsonArray) {
+        nearbyPlaceList = new ArrayList<>();
 
-		if(progressBar.getVisibility() == View.VISIBLE) {
-			progressBar.setVisibility(View.GONE);
-		}
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                boolean isLodging = false;
+                boolean isDuplicate = false;
 
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-	}
+                JSONObject placeJSON = jsonArray.getJSONObject(i);
+                Place place = new Place();
+                place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
+                place.longitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
+                place.name = placeJSON.has("name") ? placeJSON.getString("name") : "";
+                place.placeId = placeJSON.has("place_id") ? placeJSON.getString("place_id") : "";
+                place.rating = placeJSON.has("rating") ? placeJSON.getInt("rating") : 0;
+                place.priceLevel = placeJSON.has("price_level") ? placeJSON.getInt("price_level") : 0;
+                place.address = placeJSON.has("vicinity") ? placeJSON.getString("vicinity") : "";
+                JSONArray tempArray = placeJSON.has("types") ? placeJSON.getJSONArray("types") : null;
+
+                if (tempArray != null) {
+                    for (int x = 0; x < tempArray.length(); x++) {
+                        place.types.add(tempArray.getString(x));
+                    }
+                }
+
+                for (int j = 0; j < place.types.size(); j++) {
+                    if (place.types.get(j).equals("lodging")) {
+                        isLodging = true;
+                    }
+                }
+
+                // check for duplicate places
+                for (int x = 0; x < nearbyPlaceList.size(); x++) {
+                    if (place.name.equalsIgnoreCase(nearbyPlaceList.get(x).name)) {
+                        isDuplicate = true;
+                    }
+                }
+
+                if (!isLodging || isDuplicate) {
+                    nearbyPlaceList.add(place);
+                }
+            }
+        } catch (JSONException ex) {
+            if (progressBar.getVisibility() == View.VISIBLE) {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+        if (nearbyPlaceList.size() > 0) {
+            showRandomPlace();
+        } else {
+            if (progressBar.getVisibility() == View.VISIBLE) {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void showRandomPlace() {
+        Random random = new Random();
+        int index = random.nextInt(nearbyPlaceList.size() - 1);
+        currentPlace = nearbyPlaceList.get(index);
+        TextView titleText = (TextView) findViewById(R.id.restaurantTitleText);
+        titleText.setPaintFlags(titleText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        titleText.setText(currentPlace.name);
+
+        int priceLevel = currentPlace.priceLevel;
+
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            progressBar.setVisibility(View.GONE);
+        }
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
 }
