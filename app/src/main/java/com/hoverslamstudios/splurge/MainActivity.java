@@ -53,6 +53,7 @@ public class MainActivity
         implements com.google.android.gms.location.LocationListener,
         GoogleApiClient.ConnectionCallbacks {
 
+    private static final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
     private static final String AD_UNIT_ID = "ca-app-pub-6378196838372847/2222869010";
     private static final String APP_ID = "";
     private TextInputEditText locationEditText;
@@ -66,11 +67,9 @@ public class MainActivity
     private String latitude;
     private String longitude;
 
-    public enum PRICE {
-        BUDGET,
-        CHEAP,
-        MODERATE,
-        EXPENSIVE
+    public enum REQUEST_TYPE {
+        PLACE_DETAILS,
+        PLACE_SEARCH
     }
 
     @Override
@@ -313,7 +312,6 @@ public class MainActivity
 
     private void performPlacesRequest() {
         // show hide progress bar
-        final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
         String userLocation = getUserLocation();
 
         if (userLocation == null || userLocation.isEmpty()) {
@@ -322,26 +320,57 @@ public class MainActivity
             return;
         }
 
-        final String foodURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+        final String radarSearchURL = "https://maps.googleapis.com/maps/api/place/radarsearch/json?" +
+                "location=" + userLocation + "&" +
+                "maxPriceLevel=4&" +
+                "radius=50000&" +
+                "type=restaurant&" +
+                "key=" + GOOGLE_API_KEY;
+
+        final String nearbySearchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
                 "location=" + userLocation + "&" +
                 "maxPriceLevel=4&" +
                 "rankby=distance&" +
                 "type=restaurant&" +
                 "key=" + GOOGLE_API_KEY;
 
+        createVolleyRequest(radarSearchURL, REQUEST_TYPE.PLACE_SEARCH);
+    }
 
+    private String getUserLocation() {
+        if (!locationEditText.getText().toString().isEmpty()) {
+            if (locationEditText.getText().toString().equals("Current Location")) {
+                return latitude + "," + longitude;
+            } else {
+                return getLatLng(locationEditText.getText().toString());
+            }
+        }
+
+        return null;
+    }
+
+    private void createVolleyRequest(String url, final REQUEST_TYPE requestType) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
         // Request a string response from the provided URL.
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, foodURL,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray object = response.getJSONArray("results");
-                            parseObjectArray(object);
+
+                            switch (requestType) {
+                                case PLACE_SEARCH:
+                                    parsePlaceSearch(object);
+                                    break;
+                                case PLACE_DETAILS:
+                                    parsePlaceDetails(object);
+                                    break;
+                            }
+
                         } catch (JSONException ex) {
                             //?
                             if (progressBar.getVisibility() == View.VISIBLE) {
@@ -360,18 +389,6 @@ public class MainActivity
         });
         // Add the request to the RequestQueue.
         queue.add(request);
-    }
-
-    private String getUserLocation() {
-        if (!locationEditText.getText().toString().isEmpty()) {
-            if (locationEditText.getText().toString().equals("Current Location")) {
-                return latitude + "," + longitude;
-            } else {
-                return getLatLng(locationEditText.getText().toString());
-            }
-        }
-
-        return null;
     }
 
     private String getLatLng(String searchAddress) {
@@ -407,7 +424,7 @@ public class MainActivity
         return null;
     }
 
-    private void parseObjectArray(JSONArray jsonArray) {
+    private void parsePlaceSearch(JSONArray jsonArray) {
         nearbyPlaceList = new ArrayList<>();
 
         try {
@@ -417,6 +434,7 @@ public class MainActivity
 
                 JSONObject placeJSON = jsonArray.getJSONObject(i);
                 Place place = new Place();
+
                 place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
                 place.longitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
                 place.name = placeJSON.has("name") ? placeJSON.getString("name") : "";
@@ -464,6 +482,10 @@ public class MainActivity
         }
     }
 
+    private void parsePlaceDetails(JSONArray jsonArray) {
+        //TODO: fetch the placeID and then search for place details then show them!
+    }
+
     private void showRandomPlace() {
         Random random = new Random();
         int index = random.nextInt(nearbyPlaceList.size() - 1);
@@ -474,11 +496,21 @@ public class MainActivity
 
         int priceLevel = currentPlace.priceLevel;
 
+        getPlaceDetails(currentPlace.placeId);
+
         if (progressBar.getVisibility() == View.VISIBLE) {
             progressBar.setVisibility(View.GONE);
         }
 
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
+    private void getPlaceDetails(String placeID) {
+        final String placeDetailsRequestURL = "https://maps.googleapis.com/maps/api/place/details/json?" +
+                "placeid=" + placeID + "&" +
+                "key=" + GOOGLE_API_KEY;
+
+        createVolleyRequest(placeDetailsRequestURL, REQUEST_TYPE.PLACE_DETAILS);
     }
 }
