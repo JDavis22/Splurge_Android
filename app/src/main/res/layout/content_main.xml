@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:ads="http://schemas.android.com/apk/res-auto"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:id="@+id/mainContentView"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                                             tools:context="com.hoverslamstudios.splurge.MainActivity"
-                                             tools:showIn="@layout/activity_main">
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContentView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.hoverslamstudios.splurge.MainActivity"
+    tools:showIn="@layout/activity_main">
 
     <TextView
         android:id="@+id/titleTextView"
@@ -20,7 +20,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.065"/>
+        app:layout_constraintVertical_bias="0.065" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/locationTextLayout"
@@ -46,7 +46,7 @@
             app:layout_constraintHorizontal_bias="0.505"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleTextView"/>
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
@@ -64,7 +64,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/getLocationButton"
-        app:layout_constraintTop_toBottomOf="@+id/locationTextLayout"/>
+        app:layout_constraintTop_toBottomOf="@+id/locationTextLayout" />
 
     <Button
         android:id="@+id/getLocationButton"
@@ -80,7 +80,7 @@
         app:layout_constraintEnd_toStartOf="@+id/searchButton"
         app:layout_constraintHorizontal_bias="0.0899"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -98,15 +98,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getLocationButton"
-        app:layout_constraintVertical_bias="0.136"/>
+        app:layout_constraintVertical_bias="0.136" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/foodCardLayout"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@+id/getLocationButton">
 
         <TextView
@@ -115,6 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:autoLink="map"
             android:clickable="true"
             android:focusable="true"
@@ -122,11 +123,44 @@
             android:padding="5dp"
             android:textColor="@color/colorAccent"
             android:textSize="32sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintBottom_toTopOf="@+id/restaurantPriceLevelText"
             ads:layout_constraintHorizontal_bias="0.50"
             ads:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Chipotle: Mexican Grill" />
+
+        <TextView
+            android:id="@+id/restaurantPriceLevelText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
+            ads:layout_constraintBottom_toTopOf="@+id/restaurantRatingText"
+            tools:layout_editor_absoluteX="62dp"
+            tools:text="Price: Very Expensive" />
+
+        <TextView
+            android:id="@+id/restaurantRatingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
+            ads:layout_constraintBottom_toTopOf="@+id/restaurantWebsiteUrlText"
+            tools:layout_editor_absoluteX="62dp"
+            tools:text="Rating: 4.75" />
+
+        <TextView
+            android:id="@+id/restaurantWebsiteUrlText"
+            android:layout_width="245dp"
+            android:layout_height="32dp"
+            android:maxLines="3"
+            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
+            android:clickable="true"
+            android:focusable="true"
+            android:linksClickable="true"
+            ads:layout_constraintBottom_toBottomOf="@+id/foodCardLayout"
+            tools:layout_editor_absoluteX="62dp"
+            tools:text="https://www.mcdonalds.com/fortCollinsLocation"
+            tools:layout_editor_absoluteY="123dp" />
 
     </android.support.constraint.ConstraintLayout>
 
@@ -136,16 +170,16 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:foregroundGravity="center_horizontal"
         android:visibility="visible"
         ads:adSize="320x100"
         ads:adUnitId="@string/native_ad_unit_id"
+        ads:layout_constraintTop_toBottomOf="@+id/foodCardLayout"
+        ads:layout_constraintVertical_bias="1.0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"
-        ads:layout_constraintTop_toBottomOf="@+id/foodCardLayout"
-        ads:layout_constraintVertical_bias="1.0"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

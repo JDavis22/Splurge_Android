@@ -19,6 +19,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -58,9 +60,13 @@ public class MainActivity
     private static final String APP_ID = "";
     private TextInputEditText locationEditText;
     private TextView restaurantText;
+    private TextView restaurantWebsiteText;
+    private TextView restaurantRatingText;
+    private TextView restaurantPriceLevelText;
     private NativeExpressAdView adNativeView;
     private ProgressBar progressBar;
     private ArrayList<Place> nearbyPlaceList;
+    private JSONArray nearbySearchResults;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Place currentPlace;
@@ -94,13 +100,6 @@ public class MainActivity
                     .build();
         }
     }
-
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.menu_main, menu);
-//		return true;
-//	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -145,6 +144,11 @@ public class MainActivity
         restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
         restaurantText.setOnClickListener(restaurantClickListener);
 
+        restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
+        restaurantRatingText = (TextView) findViewById(R.id.restaurantRatingText);
+        restaurantWebsiteText = (TextView) findViewById(R.id.restaurantWebsiteUrlText);
+        restaurantWebsiteText.setOnClickListener(restaurantWebsiteClickListener);
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
@@ -157,7 +161,12 @@ public class MainActivity
             if (!locationEditText.getText().toString().isEmpty()) {
                 // show hide progress
                 progressBar.setVisibility(View.VISIBLE);
-                performPlacesRequest();
+
+                if (nearbySearchResults != null && nearbySearchResults.length() > 0) {
+                    parsePlaceObject(null);
+                } else {
+                    performPlacesRequest();
+                }
             }
         }
     };
@@ -176,10 +185,17 @@ public class MainActivity
         public void onClick(View v) {
             // open map with address!
             if (currentPlace != null) {
-                String url = "http://maps.google.com/maps?daddr=" + currentPlace.latitude + "," + currentPlace.longitude;
+                String url = currentPlace.mapsUrl;
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url));
                 startActivity(intent);
             }
+        }
+    };
+
+    TextView.OnClickListener restaurantWebsiteClickListener = new TextView.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // open browser with website!
         }
     };
 
@@ -300,7 +316,7 @@ public class MainActivity
                 } else if (progressBar.getVisibility() == View.VISIBLE) {
                     progressBar.setVisibility(View.GONE);
 
-                    Snackbar.make(findViewById(R.id.mainContentView), "Unable to get location", Snackbar.LENGTH_LONG);
+                    Snackbar.make(findViewById(R.id.mainContentView), "Unable to get location", Snackbar.LENGTH_LONG).show();
                 }
             } catch (SecurityException ex) {
                 if (progressBar.getVisibility() == View.VISIBLE) {
@@ -323,14 +339,7 @@ public class MainActivity
         final String radarSearchURL = "https://maps.googleapis.com/maps/api/place/radarsearch/json?" +
                 "location=" + userLocation + "&" +
                 "maxPriceLevel=4&" +
-                "radius=50000&" +
-                "type=restaurant&" +
-                "key=" + GOOGLE_API_KEY;
-
-        final String nearbySearchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
-                "location=" + userLocation + "&" +
-                "maxPriceLevel=4&" +
-                "rankby=distance&" +
+                "radius=16093&" +
                 "type=restaurant&" +
                 "key=" + GOOGLE_API_KEY;
 
@@ -360,31 +369,33 @@ public class MainActivity
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONArray object = response.getJSONArray("results");
-
                             switch (requestType) {
                                 case PLACE_SEARCH:
-                                    parsePlaceSearch(object);
+                                    JSONArray objects = response.getJSONArray("results");
+                                    if(objects.length() > 1) {
+                                        parsePlaceObject(objects);
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                        Snackbar.make(findViewById(R.id.mainContentView),"Could not retrieve data.", Snackbar.LENGTH_LONG).show();
+                                    }
                                     break;
                                 case PLACE_DETAILS:
+                                    JSONObject object = response.getJSONObject("result");
                                     parsePlaceDetails(object);
                                     break;
                             }
 
                         } catch (JSONException ex) {
-                            //?
-                            if (progressBar.getVisibility() == View.VISIBLE) {
-                                progressBar.setVisibility(View.GONE);
-                            }
+                            progressBar.setVisibility(View.GONE);
+                            ex.printStackTrace();
                         }
 
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (progressBar.getVisibility() == View.VISIBLE) {
-                    progressBar.setVisibility(View.GONE);
-                }
+                progressBar.setVisibility(View.GONE);
+                error.printStackTrace();
             }
         });
         // Add the request to the RequestQueue.
@@ -413,97 +424,73 @@ public class MainActivity
 
         } catch (IOException ex) {
             locationEditText.setText(null);
-            if (progressBar.getVisibility() == View.VISIBLE) {
-                progressBar.setVisibility(View.GONE);
-            }
+            progressBar.setVisibility(View.GONE);
+            ex.printStackTrace();
         }
 
-        if (progressBar.getVisibility() == View.VISIBLE) {
-            progressBar.setVisibility(View.GONE);
-        }
+        progressBar.setVisibility(View.GONE);
         return null;
     }
 
-    private void parsePlaceSearch(JSONArray jsonArray) {
-        nearbyPlaceList = new ArrayList<>();
+    private void parsePlaceObject(@Nullable JSONArray jsonArray) {
+        if (nearbySearchResults == null && jsonArray != null) {
+            nearbySearchResults = new JSONArray();
+            nearbySearchResults = jsonArray;
+        }
 
         try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                boolean isLodging = false;
-                boolean isDuplicate = false;
-
-                JSONObject placeJSON = jsonArray.getJSONObject(i);
-                Place place = new Place();
-
-                place.latitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lat");
-                place.longitude = placeJSON.getJSONObject("geometry").getJSONObject("location").getString("lng");
-                place.name = placeJSON.has("name") ? placeJSON.getString("name") : "";
-                place.placeId = placeJSON.has("place_id") ? placeJSON.getString("place_id") : "";
-                place.rating = placeJSON.has("rating") ? placeJSON.getInt("rating") : 0;
-                place.priceLevel = placeJSON.has("price_level") ? placeJSON.getInt("price_level") : 0;
-                place.address = placeJSON.has("vicinity") ? placeJSON.getString("vicinity") : "";
-                JSONArray tempArray = placeJSON.has("types") ? placeJSON.getJSONArray("types") : null;
-
-                if (tempArray != null) {
-                    for (int x = 0; x < tempArray.length(); x++) {
-                        place.types.add(tempArray.getString(x));
-                    }
-                }
-
-                for (int j = 0; j < place.types.size(); j++) {
-                    if (place.types.get(j).equals("lodging")) {
-                        isLodging = true;
-                    }
-                }
-
-                // check for duplicate places
-                for (int x = 0; x < nearbyPlaceList.size(); x++) {
-                    if (place.name.equalsIgnoreCase(nearbyPlaceList.get(x).name)) {
-                        isDuplicate = true;
-                    }
-                }
-
-                if (!isLodging || isDuplicate) {
-                    nearbyPlaceList.add(place);
-                }
+            if (nearbySearchResults != null && nearbySearchResults.length() > 0) {
+                Random random = new Random();
+                int index = random.nextInt(nearbySearchResults.length() - 1);
+                JSONObject placeJSON = nearbySearchResults.getJSONObject(index);
+                String placeId = placeJSON.getString("place_id");
+                getPlaceDetails(placeId);
             }
         } catch (JSONException ex) {
-            if (progressBar.getVisibility() == View.VISIBLE) {
-                progressBar.setVisibility(View.GONE);
-            }
-        }
-
-        if (nearbyPlaceList.size() > 0) {
-            showRandomPlace();
-        } else {
-            if (progressBar.getVisibility() == View.VISIBLE) {
-                progressBar.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    private void parsePlaceDetails(JSONArray jsonArray) {
-        //TODO: fetch the placeID and then search for place details then show them!
-    }
-
-    private void showRandomPlace() {
-        Random random = new Random();
-        int index = random.nextInt(nearbyPlaceList.size() - 1);
-        currentPlace = nearbyPlaceList.get(index);
-        TextView titleText = (TextView) findViewById(R.id.restaurantTitleText);
-        titleText.setPaintFlags(titleText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        titleText.setText(currentPlace.name);
-
-        int priceLevel = currentPlace.priceLevel;
-
-        getPlaceDetails(currentPlace.placeId);
-
-        if (progressBar.getVisibility() == View.VISIBLE) {
             progressBar.setVisibility(View.GONE);
+            ex.printStackTrace();
         }
+    }
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    private void parsePlaceDetails(JSONObject jsonObject) {
+        try {
+            boolean isLodging = false;
+
+            Place place = new Place();
+
+            place.latitude = jsonObject.optJSONObject("geometry").optJSONObject("location").optString("lat");
+            place.latitude = jsonObject.optJSONObject("geometry").optJSONObject("location").optString("lng");
+            place.name = jsonObject.optString("name");
+            place.placeId = jsonObject.optString("place_id");
+            place.rating = jsonObject.optInt("rating");
+            place.priceLevel = jsonObject.optInt("price_level");
+            place.address = jsonObject.optString("vicinity");
+            place.website = jsonObject.optString("website");
+            place.mapsUrl = jsonObject.optString("url");
+            place.isOpen = jsonObject.optJSONObject("opening_hours").optBoolean("open_now");
+            JSONArray tempArray = jsonObject.optJSONArray("types");
+
+            if (tempArray != null) {
+                for (int x = 0; x < tempArray.length(); x++) {
+                    place.types.add(tempArray.getString(x));
+                }
+            }
+
+            for (int j = 0; j < place.types.size(); j++) {
+                if (place.types.get(j).equals("lodging")) {
+                    isLodging = true;
+                }
+            }
+
+            if (!isLodging && place.isOpen) {
+                showRandomPlace(place);
+            } else {
+                parsePlaceObject(null);
+            }
+        } catch (JSONException ex) {
+            progressBar.setVisibility(View.GONE);
+            ex.printStackTrace();
+        }
     }
 
     private void getPlaceDetails(String placeID) {
@@ -512,5 +499,28 @@ public class MainActivity
                 "key=" + GOOGLE_API_KEY;
 
         createVolleyRequest(placeDetailsRequestURL, REQUEST_TYPE.PLACE_DETAILS);
+    }
+
+    private void showRandomPlace(Place place) {
+        currentPlace = place;
+
+        // Name of place, underlined, keep it clickable for map.
+        restaurantText.setPaintFlags(restaurantText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        restaurantText.setText(currentPlace.name);
+
+        // Rating
+        restaurantRatingText.setText("Rating: " + currentPlace.rating);
+
+        // Price level - make this customizable
+        restaurantPriceLevelText.setText(currentPlace.getPriceLevelText(currentPlace.priceLevel));
+        // Website
+        restaurantWebsiteText.setMovementMethod(LinkMovementMethod.getInstance());
+        String text = "<a href='" + currentPlace.website + "'>Visit Website</a>";
+        restaurantWebsiteText.setText(Html.fromHtml(text));
+
+        progressBar.setVisibility(View.GONE);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 }
