@@ -87,7 +87,9 @@ public class MainActivity
         bindViews();
 
         MobileAds.initialize(this, AD_UNIT_ID);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice()
+                .build();
         adNativeView.loadAd(adRequest);
 
         checkPermissions();
@@ -372,11 +374,11 @@ public class MainActivity
                             switch (requestType) {
                                 case PLACE_SEARCH:
                                     JSONArray objects = response.getJSONArray("results");
-                                    if(objects.length() > 1) {
+                                    if (objects.length() > 1) {
                                         parsePlaceObject(objects);
                                     } else {
                                         progressBar.setVisibility(View.GONE);
-                                        Snackbar.make(findViewById(R.id.mainContentView),"Could not retrieve data.", Snackbar.LENGTH_LONG).show();
+                                        Snackbar.make(findViewById(R.id.mainContentView), "Could not retrieve data.", Snackbar.LENGTH_LONG).show();
                                     }
                                     break;
                                 case PLACE_DETAILS:
