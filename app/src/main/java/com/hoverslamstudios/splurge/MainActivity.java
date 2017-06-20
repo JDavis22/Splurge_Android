@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -47,7 +48,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -64,6 +64,8 @@ public class MainActivity
     private TextView restaurantWebsiteText;
     private TextView restaurantRatingText;
     private TextView restaurantPriceLevelText;
+    private TextView distanceText;
+    private SeekBar distanceSeekBar;
     private ConstraintLayout foodCardLayout;
     private NativeExpressAdView adNativeView;
     private ProgressBar progressBar;
@@ -88,7 +90,9 @@ public class MainActivity
         bindViews();
 
         MobileAds.initialize(this, AD_UNIT_ID);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                //.addTestDevice()
+                .build();
         adNativeView.loadAd(adRequest);
 
         checkPermissions();
@@ -150,9 +154,13 @@ public class MainActivity
         restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
         restaurantRatingText = (TextView) findViewById(R.id.restaurantRatingText);
         restaurantWebsiteText = (TextView) findViewById(R.id.restaurantWebsiteUrlText);
-        restaurantWebsiteText.setOnClickListener(restaurantWebsiteClickListener);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        distanceSeekBar = (SeekBar) findViewById(R.id.distanceSeekBar);
+        distanceSeekBar.setOnSeekBarChangeListener(distanceSeekChangedListener);
+
+        distanceText = (TextView) findViewById(R.id.distanceText);
 
         adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
 
@@ -195,12 +203,27 @@ public class MainActivity
         }
     };
 
-    TextView.OnClickListener restaurantWebsiteClickListener = new TextView.OnClickListener() {
+    SeekBar.OnSeekBarChangeListener distanceSeekChangedListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
-        public void onClick(View v) {
-            // open browser with website!
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            // update text indicator
+            distanceText.setText(getMetersFromMiles(progress));
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     };
+
+    private String getMetersFromMiles(int miles) {
+        return String.valueOf(miles * 1609);
+    }
 
     private void startLocationUpdates() {
         checkPermissions();
@@ -375,11 +398,11 @@ public class MainActivity
                             switch (requestType) {
                                 case PLACE_SEARCH:
                                     JSONArray objects = response.getJSONArray("results");
-                                    if(objects.length() > 1) {
+                                    if (objects.length() > 1) {
                                         parsePlaceObject(objects);
                                     } else {
                                         progressBar.setVisibility(View.GONE);
-                                        Snackbar.make(findViewById(R.id.mainContentView),"Could not retrieve data.", Snackbar.LENGTH_LONG).show();
+                                        Snackbar.make(findViewById(R.id.mainContentView), "Could not retrieve data.", Snackbar.LENGTH_LONG).show();
                                     }
                                     break;
                                 case PLACE_DETAILS:

@@ -5,8 +5,10 @@ android {
         androidDev {
             keyAlias 'androidDev'
             keyPassword 'android'
-            storeFile file('D:/Documents/google_keystore/androidDev.keystore')
+            //storeFile file('D:/Documents/google_keystore/androidDev.keystore')
             storePassword 'android'
+        }
+        debug {
         }
     }
     compileSdkVersion 25
@@ -25,7 +27,7 @@ android {
             signingConfig signingConfigs.androidDev
         }
         debug {
-            signingConfig signingConfigs.androidDev
+            signingConfig signingConfigs.debug
         }
     }
 }
