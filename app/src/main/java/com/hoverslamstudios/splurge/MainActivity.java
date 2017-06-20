@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
@@ -63,9 +64,9 @@ public class MainActivity
     private TextView restaurantWebsiteText;
     private TextView restaurantRatingText;
     private TextView restaurantPriceLevelText;
+    private ConstraintLayout foodCardLayout;
     private NativeExpressAdView adNativeView;
     private ProgressBar progressBar;
-    private ArrayList<Place> nearbyPlaceList;
     private JSONArray nearbySearchResults;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -143,6 +144,8 @@ public class MainActivity
 
         restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
         restaurantText.setOnClickListener(restaurantClickListener);
+
+        foodCardLayout = (ConstraintLayout) findViewById(R.id.foodCardLayout);
 
         restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
         restaurantRatingText = (TextView) findViewById(R.id.restaurantRatingText);
@@ -503,6 +506,7 @@ public class MainActivity
     }
 
     private void showRandomPlace(Place place) {
+        foodCardLayout.setVisibility(View.VISIBLE);
         currentPlace = place;
 
         // Name of place, underlined, keep it clickable for map.
