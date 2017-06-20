@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -46,7 +47,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -63,9 +63,10 @@ public class MainActivity
     private TextView restaurantWebsiteText;
     private TextView restaurantRatingText;
     private TextView restaurantPriceLevelText;
+    private TextView distanceText;
+    private SeekBar distanceSeekBar;
     private NativeExpressAdView adNativeView;
     private ProgressBar progressBar;
-    private ArrayList<Place> nearbyPlaceList;
     private JSONArray nearbySearchResults;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
@@ -88,7 +89,7 @@ public class MainActivity
 
         MobileAds.initialize(this, AD_UNIT_ID);
         AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice()
+                //.addTestDevice()
                 .build();
         adNativeView.loadAd(adRequest);
 
@@ -149,9 +150,13 @@ public class MainActivity
         restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
         restaurantRatingText = (TextView) findViewById(R.id.restaurantRatingText);
         restaurantWebsiteText = (TextView) findViewById(R.id.restaurantWebsiteUrlText);
-        restaurantWebsiteText.setOnClickListener(restaurantWebsiteClickListener);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        distanceSeekBar = (SeekBar) findViewById(R.id.distanceSeekBar);
+        distanceSeekBar.setOnSeekBarChangeListener(distanceSeekChangedListener);
+
+        distanceText = (TextView) findViewById(R.id.distanceText);
 
         adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
 
@@ -194,12 +199,27 @@ public class MainActivity
         }
     };
 
-    TextView.OnClickListener restaurantWebsiteClickListener = new TextView.OnClickListener() {
+    SeekBar.OnSeekBarChangeListener distanceSeekChangedListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
-        public void onClick(View v) {
-            // open browser with website!
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            // update text indicator
+            distanceText.setText(getMetersFromMiles(progress));
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     };
+
+    private String getMetersFromMiles(int miles) {
+        return String.valueOf(miles * 1609);
+    }
 
     private void startLocationUpdates() {
         checkPermissions();
