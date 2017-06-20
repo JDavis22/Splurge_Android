@@ -469,7 +469,8 @@ public class MainActivity
             place.address = jsonObject.optString("vicinity");
             place.website = jsonObject.optString("website");
             place.mapsUrl = jsonObject.optString("url");
-            place.isOpen = jsonObject.optJSONObject("opening_hours").optBoolean("open_now");
+            JSONObject temp = jsonObject.optJSONObject("opening_hours");
+            place.isOpen = temp != null && temp.optBoolean("open_now");
             JSONArray tempArray = jsonObject.optJSONArray("types");
 
             if (tempArray != null) {
