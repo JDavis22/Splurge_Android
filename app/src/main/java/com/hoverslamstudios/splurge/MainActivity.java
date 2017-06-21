@@ -75,6 +75,7 @@ public class MainActivity
     private Place currentPlace;
     private String latitude;
     private String longitude;
+    private String customSearchMeters;
 
     public enum REQUEST_TYPE {
         PLACE_DETAILS,
@@ -207,7 +208,8 @@ public class MainActivity
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             // update text indicator
-            distanceText.setText(getMetersFromMiles(progress));
+            distanceText.setText(String.valueOf(progress));
+            customSearchMeters = getMetersFromMiles(progress);
         }
 
         @Override
@@ -365,7 +367,7 @@ public class MainActivity
         final String radarSearchURL = "https://maps.googleapis.com/maps/api/place/radarsearch/json?" +
                 "location=" + userLocation + "&" +
                 "maxPriceLevel=4&" +
-                "radius=16093&" +
+                "radius=" + customSearchMeters + "&" +
                 "type=restaurant&" +
                 "key=" + GOOGLE_API_KEY;
 
