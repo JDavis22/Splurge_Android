@@ -13,12 +13,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -67,7 +67,7 @@ public class MainActivity
     private TextView restaurantPriceLevelText;
     private TextView distanceText;
     private SeekBar distanceSeekBar;
-    private ConstraintLayout foodCardLayout;
+    private CardView foodCardLayout;
     private NativeExpressAdView adNativeView;
     private ProgressBar progressBar;
     private JSONArray nearbySearchResults;
@@ -153,7 +153,7 @@ public class MainActivity
         restaurantText = (TextView) findViewById(R.id.restaurantTitleText);
         restaurantText.setOnClickListener(restaurantClickListener);
 
-        foodCardLayout = (ConstraintLayout) findViewById(R.id.foodCardLayout);
+        foodCardLayout = (CardView) findViewById(R.id.foodCardLayout);
 
         restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
         restaurantWebsiteText = (TextView) findViewById(R.id.restaurantWebsiteUrlText);
@@ -178,7 +178,7 @@ public class MainActivity
         public void onClick(View v) {
             if (!locationEditText.getText().toString().isEmpty()) {
                 // show hide progress
-                progressBar.setVisibility(View.VISIBLE);
+                showLoadingProgressBar();
 
                 if (nearbySearchResults != null && nearbySearchResults.length() > 0 && !isNewDistanceSelected) {
                     parsePlaceObject(null);
@@ -194,7 +194,7 @@ public class MainActivity
         @Override
         public void onClick(View v) {
             // show hide progress
-            progressBar.setVisibility(View.VISIBLE);
+            showLoadingProgressBar();
             getLastLocation();
         }
     };
@@ -225,7 +225,7 @@ public class MainActivity
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             // update text indicator
-            int value = seekBar.getProgress();
+            int value = seekBar.getProgress() == 0 ? 1 : seekBar.getProgress();
 
             if (value != Integer.valueOf(customSearchMeters) / 1609) {
                 customSearchMeters = getMetersFromMiles(value);
@@ -233,6 +233,11 @@ public class MainActivity
             }
         }
     };
+
+    private void showLoadingProgressBar() {
+        foodCardLayout.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
     private String getMetersFromMiles(int miles) {
         return String.valueOf(miles * 1609);
@@ -329,9 +334,8 @@ public class MainActivity
         }
 
         if (!gps_enabled && !network_enabled) {
-            if (progressBar.getVisibility() == View.VISIBLE) {
                 progressBar.setVisibility(View.GONE);
-            }
+
             Snackbar.make(findViewById(R.id.mainContentView), "Please enable GPS in settings", Snackbar.LENGTH_LONG)
                     .setAction("Settings", new View.OnClickListener() {
                         @Override
@@ -349,26 +353,21 @@ public class MainActivity
                     longitude = String.valueOf(mLastLocation.getLongitude());
                     locationEditText.setText("Current Location");
 
-                    if (progressBar.getVisibility() == View.VISIBLE) {
                         progressBar.setVisibility(View.GONE);
-                    }
                 } else if (progressBar.getVisibility() == View.VISIBLE) {
                     progressBar.setVisibility(View.GONE);
 
                     Snackbar.make(findViewById(R.id.mainContentView), "Unable to get location", Snackbar.LENGTH_LONG).show();
                 }
             } catch (SecurityException ex) {
-                if (progressBar.getVisibility() == View.VISIBLE) {
                     progressBar.setVisibility(View.GONE);
-                }
             }
         }
     }
 
     private void performPlacesRequest() {
-        // show hide progress bar
         String userLocation = getUserLocation();
-
+        nearbySearchResults = null;
         if (userLocation == null || userLocation.isEmpty()) {
             progressBar.setVisibility(View.GONE);
             locationEditText.setText("");

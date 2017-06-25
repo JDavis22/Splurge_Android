@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Splurge</string>
     <string name="action_settings">Settings</string>
-
+    <item name="visible" type="id"/>
+    <item name="masked" type="id"/>
     <string name="app_slogan">Find food, fast.</string>
     <string name="native_ad_unit_id">ca-app-pub-6378196838372847/2222869010</string>
     <string name="native_ad_unit_id_test">ca-app-pub-3940256099942544/2177258514</string>
+
 </resources>

@@ -92,7 +92,6 @@
         android:visibility="gone"
         ads:layout_constraintHorizontal_bias="0.501"
         ads:layout_constraintTop_toTopOf="@+id/foodCardLayout"
-        ads:layout_constraintVertical_bias="0.244"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -136,6 +135,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
         android:max="10"
         android:padding="5dp"
         android:progress="10"
@@ -150,13 +150,14 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="24dp"
         android:elevation="2dp"
         ads:cardBackgroundColor="@color/cardview_light_background"
         ads:cardCornerRadius="1dp"
         ads:cardElevation="2dp"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintHorizontal_bias="0.636"
+        android:visibility="gone"
         ads:layout_constraintTop_toBottomOf="@+id/distanceSeekBar"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -187,12 +188,14 @@
                     android:gravity="center_horizontal"
                     android:maxLines="2"
                     android:padding="5dp"
-                    android:textAppearance="@android:style/TextAppearance.Material.Title.Inverse"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/white"
                     android:textSize="28sp"
+                    android:textStyle="bold"
                     ads:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:text="Chipotle: Mexican Grill" />
+                    tools:text="Chipotle: Mexican Grill"/>
 
             </LinearLayout>
 
@@ -225,6 +228,7 @@
                 android:numStars="5"
                 android:rating="3.6"
                 android:scaleX="0.5"
+                android:isIndicator="true"
                 android:scaleY="0.55"
                 android:stepSize="0.2"
                 android:visibility="visible"
