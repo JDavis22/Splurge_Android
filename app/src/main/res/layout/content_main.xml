@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:ads="http://schemas.android.com/apk/res-auto"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:id="@+id/mainContentView"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                                             tools:context="com.hoverslamstudios.splurge.MainActivity"
-                                             tools:showIn="@layout/activity_main">
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContentView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.hoverslamstudios.splurge.MainActivity"
+    tools:showIn="@layout/activity_main">
 
     <TextView
         android:id="@+id/titleTextView"
@@ -19,7 +19,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/locationTextLayout"
@@ -45,41 +45,38 @@
             app:layout_constraintHorizontal_bias="0.505"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleTextView"/>
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/searchButton"
         android:layout_width="150dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
         android:background="@android:color/transparent"
         android:text="Search"
         android:textColor="@color/colorPrimary"
+        ads:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.899"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/getLocationButton"
-        app:layout_constraintTop_toBottomOf="@+id/locationTextLayout"/>
+        app:layout_constraintTop_toBottomOf="@+id/locationTextLayout" />
 
     <Button
         android:id="@+id/getLocationButton"
         android:layout_width="150dp"
         android:layout_height="50dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:background="@android:color/transparent"
         android:text="Get Location"
         android:textColor="@color/colorPrimary"
+        ads:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBaseline_toBaselineOf="@+id/searchButton"
         app:layout_constraintEnd_toStartOf="@+id/searchButton"
         app:layout_constraintHorizontal_bias="0.0899"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -93,85 +90,14 @@
         android:clickable="false"
         android:orientation="vertical"
         android:visibility="gone"
+        ads:layout_constraintHorizontal_bias="0.501"
+        ads:layout_constraintTop_toTopOf="@+id/foodCardLayout"
+        ads:layout_constraintVertical_bias="0.244"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getLocationButton"
-        app:layout_constraintVertical_bias="0.136"/>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/foodCardLayout"
-        android:layout_width="match_parent"
-        android:layout_height="165dp"
-        android:layout_marginTop="8dp"
-        ads:layout_constraintTop_toBottomOf="@+id/distanceSeekBar"
-        ads:layout_constraintTop_toTopOf="@+id/progressBar"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteX="0dp">
-
-        <TextView
-            android:id="@+id/restaurantTitleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:autoLink="map"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_horizontal"
-            android:padding="5dp"
-            android:textColor="@color/colorAccent"
-            android:textSize="32sp"
-            ads:layout_constraintBottom_toTopOf="@+id/restaurantPriceLevelText"
-            ads:layout_constraintHorizontal_bias="0.50"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="-4dp"
-            tools:text="Chipotle: Mexican Grill"/>
-
-        <TextView
-            android:id="@+id/restaurantPriceLevelText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            ads:layout_constraintBottom_toTopOf="@+id/restaurantRatingText"
-            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
-            tools:layout_editor_absoluteX="62dp"
-            tools:text="Price: Very Expensive"/>
-
-        <TextView
-            android:id="@+id/restaurantRatingText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            ads:layout_constraintBottom_toTopOf="@+id/restaurantWebsiteUrlText"
-            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
-            tools:layout_editor_absoluteX="62dp"
-            tools:text="Rating: 4.75"/>
-
-        <RatingBar
-            android:id="@+id/restaurantRatingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="12dp"
-            android:layout_marginStart="2dp"
-            android:visibility="gone"
-            ads:layout_constraintBottom_toTopOf="@+id/restaurantWebsiteUrlText"
-            ads:layout_constraintEnd_toEndOf="@id/restaurantRatingText"
-            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"/>
-
-        <TextView
-            android:id="@+id/restaurantWebsiteUrlText"
-            android:layout_width="245dp"
-            android:layout_height="32dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:linksClickable="true"
-            android:maxLines="3"
-            ads:layout_constraintBottom_toBottomOf="@+id/foodCardLayout"
-            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
-            tools:layout_editor_absoluteX="62dp"
-            tools:layout_editor_absoluteY="123dp"
-            tools:text="https://www.mcdonalds.com/fortCollinsLocation"/>
-
-    </android.support.constraint.ConstraintLayout>
+        app:layout_constraintVertical_bias="0.136" />
 
     <com.google.android.gms.ads.NativeExpressAdView
         android:id="@+id/adNativeView"
@@ -189,7 +115,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/distanceText"
@@ -197,11 +123,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="10 miles"
         ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintHorizontal_bias="0.501"
         ads:layout_constraintStart_toStartOf="parent"
-        ads:layout_constraintTop_toBottomOf="@+id/getLocationButton"/>
+        ads:layout_constraintTop_toBottomOf="@+id/getLocationButton" />
 
     <SeekBar
         android:id="@+id/distanceSeekBar"
@@ -209,13 +135,129 @@
         android:layout_height="20dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:max="10"
         android:padding="5dp"
         android:progress="10"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintHorizontal_bias="0.502"
         ads:layout_constraintStart_toStartOf="parent"
-        ads:layout_constraintTop_toBottomOf="@+id/distanceText"/>
+        ads:layout_constraintTop_toBottomOf="@+id/distanceText" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/foodCardLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:elevation="2dp"
+        ads:cardBackgroundColor="@color/cardview_light_background"
+        ads:cardCornerRadius="1dp"
+        ads:cardElevation="2dp"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintHorizontal_bias="0.636"
+        ads:layout_constraintTop_toBottomOf="@+id/distanceSeekBar"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/coloredBackgroundCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="@color/colorAccent"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/restaurantTitleText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:autoLink="map"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_horizontal"
+                    android:maxLines="2"
+                    android:padding="5dp"
+                    android:textAppearance="@android:style/TextAppearance.Material.Title.Inverse"
+                    android:textSize="28sp"
+                    ads:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="Chipotle: Mexican Grill" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/restaurantPriceLevelText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/coloredBackgroundCard"
+                android:layout_marginBottom="2dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_toEndOf="@id/restaurantRatingBar"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button.Borderless.Colored"
+                android:textSize="20sp"
+                ads:layout_constraintEnd_toEndOf="@+id/coloredBackgroundCard"
+                tools:text="$$$$$" />
+
+            <RatingBar
+                android:id="@+id/restaurantRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignStart="@id/coloredBackgroundCard"
+                android:layout_below="@id/coloredBackgroundCard"
+                android:layout_marginStart="-18dp"
+                android:clickable="false"
+                android:foregroundGravity="left"
+                android:numStars="5"
+                android:rating="3.6"
+                android:scaleX="0.5"
+                android:scaleY="0.55"
+                android:stepSize="0.2"
+                android:visibility="visible"
+                ads:layout_constraintStart_toStartOf="@id/coloredBackgroundCard"
+                ads:layout_constraintTop_toBottomOf="@+id/coloredBackgroundCard"
+                tools:layout_editor_absoluteX="60dp"
+                tools:layout_editor_absoluteY="43dp" />
+
+            <TextView
+                android:id="@+id/restaurantWebsiteUrlText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/restaurantRatingBar"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:layout_marginBottom="8dp"
+                android:autoLink="web"
+                android:clickable="true"
+                android:focusable="true"
+                android:linksClickable="true"
+                android:maxLines="3"
+                android:padding="8dp"
+                android:text="Visit Website"
+                android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button.Borderless.Colored"
+                ads:layout_constraintBottom_toBottomOf="parent"
+                ads:layout_constraintEnd_toEndOf="parent"
+                ads:layout_constraintStart_toStartOf="parent"
+                ads:layout_constraintTop_toBottomOf="@+id/restaurantRatingBar"
+                ads:layout_constraintVertical_bias="1.0"
+                tools:text="Visit Website" />
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.CardView>
 
 </android.support.constraint.ConstraintLayout>

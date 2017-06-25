@@ -63,7 +63,6 @@ public class MainActivity
     private TextInputEditText locationEditText;
     private TextView restaurantText;
     private TextView restaurantWebsiteText;
-    private TextView restaurantRatingText;
     private RatingBar ratingBar;
     private TextView restaurantPriceLevelText;
     private TextView distanceText;
@@ -157,7 +156,6 @@ public class MainActivity
         foodCardLayout = (ConstraintLayout) findViewById(R.id.foodCardLayout);
 
         restaurantPriceLevelText = (TextView) findViewById(R.id.restaurantPriceLevelText);
-        restaurantRatingText = (TextView) findViewById(R.id.restaurantRatingText);
         restaurantWebsiteText = (TextView) findViewById(R.id.restaurantWebsiteUrlText);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -229,7 +227,7 @@ public class MainActivity
             // update text indicator
             int value = seekBar.getProgress();
 
-            if(value != Integer.valueOf(customSearchMeters) / 1609) {
+            if (value != Integer.valueOf(customSearchMeters) / 1609) {
                 customSearchMeters = getMetersFromMiles(value);
                 isNewDistanceSelected = true;
             }
@@ -500,7 +498,7 @@ public class MainActivity
             Place place = new Place();
 
             place.latitude = jsonObject.optJSONObject("geometry").optJSONObject("location").optString("lat");
-            place.latitude = jsonObject.optJSONObject("geometry").optJSONObject("location").optString("lng");
+            place.longitude = jsonObject.optJSONObject("geometry").optJSONObject("location").optString("lng");
             place.name = jsonObject.optString("name");
             place.placeId = jsonObject.optString("place_id");
             place.rating = jsonObject.optInt("rating");
@@ -551,12 +549,12 @@ public class MainActivity
         restaurantText.setPaintFlags(restaurantText.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         restaurantText.setText(currentPlace.name);
 
-        // Rating
-        restaurantRatingText.setText("Rating: ");
+        // Rating Bar
         ratingBar.setRating(currentPlace.rating);
 
         // Price level - make this customizable
         restaurantPriceLevelText.setText(currentPlace.getPriceLevelText(currentPlace.priceLevel));
+
         // Website
         restaurantWebsiteText.setMovementMethod(LinkMovementMethod.getInstance());
         String text = "<a href='" + currentPlace.website + "'>Visit Website</a>";
