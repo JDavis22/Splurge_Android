@@ -15,11 +15,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/app_slogan"
+        ads:layout_constraintVertical_bias="0.032"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        ads:layout_constraintVertical_bias="0.032" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/locationTextLayout"
@@ -45,7 +45,7 @@
             app:layout_constraintHorizontal_bias="0.505"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/titleTextView"/>
     </android.support.design.widget.TextInputLayout>
 
     <Button
@@ -56,9 +56,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="20dp"
-        android:background="@color/colorPrimary"
+        android:background="@android:color/transparent"
         android:text="Search"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintHorizontal_bias="0.899"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -72,9 +72,9 @@
         android:layout_marginEnd="4dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:background="@color/colorPrimary"
+        android:background="@android:color/transparent"
         android:text="Get Location"
-        android:textColor="@android:color/white"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBaseline_toBaselineOf="@+id/searchButton"
         app:layout_constraintEnd_toStartOf="@+id/searchButton"
         app:layout_constraintHorizontal_bias="0.0899"
@@ -103,11 +103,11 @@
         android:id="@+id/foodCardLayout"
         android:layout_width="match_parent"
         android:layout_height="165dp"
-        tools:layout_editor_absoluteX="0dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
         ads:layout_constraintTop_toBottomOf="@+id/distanceSeekBar"
         ads:layout_constraintTop_toTopOf="@+id/progressBar"
-        android:layout_marginTop="8dp">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteX="0dp">
 
         <TextView
             android:id="@+id/restaurantTitleText"
@@ -126,8 +126,8 @@
             ads:layout_constraintHorizontal_bias="0.50"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="Chipotle: Mexican Grill"
-            tools:layout_editor_absoluteY="-4dp" />
+            tools:layout_editor_absoluteY="-4dp"
+            tools:text="Chipotle: Mexican Grill"/>
 
         <TextView
             android:id="@+id/restaurantPriceLevelText"
@@ -147,19 +147,29 @@
             tools:layout_editor_absoluteX="62dp"
             tools:text="Rating: 4.75"/>
 
+        <RatingBar
+            android:id="@+id/restaurantRatingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="12dp"
+            android:layout_marginStart="2dp"
+            android:visibility="gone"
+            ads:layout_constraintBottom_toTopOf="@+id/restaurantWebsiteUrlText"
+            ads:layout_constraintEnd_toEndOf="@id/restaurantRatingText"
+            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"/>
+
         <TextView
             android:id="@+id/restaurantWebsiteUrlText"
             android:layout_width="245dp"
             android:layout_height="32dp"
-            android:maxLines="3"
-            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
             android:clickable="true"
             android:focusable="true"
             android:linksClickable="true"
+            android:maxLines="3"
             ads:layout_constraintBottom_toBottomOf="@+id/foodCardLayout"
+            ads:layout_constraintStart_toStartOf="@id/restaurantTitleText"
             tools:layout_editor_absoluteX="62dp"
-            tools:text="https://www.mcdonalds.com/fortCollinsLocation"
-            tools:layout_editor_absoluteY="123dp" />
+            tools:layout_editor_absoluteY="123dp"
+            tools:text="https://www.mcdonalds.com/fortCollinsLocation"/>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -179,33 +189,33 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/distanceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="10"
-        ads:layout_constraintTop_toBottomOf="@+id/getLocationButton"
-        android:layout_marginTop="8dp"
-        ads:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="10 miles"
+        ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="8dp" />
+        ads:layout_constraintTop_toBottomOf="@+id/getLocationButton"/>
 
     <SeekBar
         android:id="@+id/distanceSeekBar"
         android:layout_width="201dp"
         android:layout_height="20dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:max="10"
-        android:progress="10"
         android:padding="5dp"
-        ads:layout_constraintTop_toBottomOf="@+id/distanceText"
+        android:progress="10"
         ads:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="8dp"
+        ads:layout_constraintHorizontal_bias="0.502"
         ads:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="8dp"
-        ads:layout_constraintHorizontal_bias="0.502" />
+        ads:layout_constraintTop_toBottomOf="@+id/distanceText"/>
 
 </android.support.constraint.ConstraintLayout>

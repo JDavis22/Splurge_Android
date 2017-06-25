@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -58,11 +59,12 @@ public class MainActivity
 
     private static final String GOOGLE_API_KEY = "AIzaSyCmQ5BBi-AJ7sY2w8JsicR00FjZHFB8nCo";
     private static final String AD_UNIT_ID = "ca-app-pub-6378196838372847/2222869010";
-    private static final String APP_ID = "";
+    private static final String APP_AD_TEST_ID = "CA55BB2889DF0095E7EF48B18B62D41E";
     private TextInputEditText locationEditText;
     private TextView restaurantText;
     private TextView restaurantWebsiteText;
     private TextView restaurantRatingText;
+    private RatingBar ratingBar;
     private TextView restaurantPriceLevelText;
     private TextView distanceText;
     private SeekBar distanceSeekBar;
@@ -75,7 +77,9 @@ public class MainActivity
     private Place currentPlace;
     private String latitude;
     private String longitude;
-    private String customSearchMeters;
+    private String customSearchMeters = "16090";
+
+    private boolean isNewDistanceSelected = false;
 
     public enum REQUEST_TYPE {
         PLACE_DETAILS,
@@ -92,7 +96,7 @@ public class MainActivity
 
         MobileAds.initialize(this, AD_UNIT_ID);
         AdRequest adRequest = new AdRequest.Builder()
-                //.addTestDevice()
+                .addTestDevice(APP_AD_TEST_ID)
                 .build();
         adNativeView.loadAd(adRequest);
 
@@ -161,6 +165,10 @@ public class MainActivity
         distanceSeekBar = (SeekBar) findViewById(R.id.distanceSeekBar);
         distanceSeekBar.setOnSeekBarChangeListener(distanceSeekChangedListener);
 
+        ratingBar = (RatingBar) findViewById(R.id.restaurantRatingBar);
+        ratingBar.setMax(5);
+        ratingBar.setStepSize(0.1f);
+
         distanceText = (TextView) findViewById(R.id.distanceText);
 
         adNativeView = (NativeExpressAdView) findViewById(R.id.adNativeView);
@@ -174,10 +182,11 @@ public class MainActivity
                 // show hide progress
                 progressBar.setVisibility(View.VISIBLE);
 
-                if (nearbySearchResults != null && nearbySearchResults.length() > 0) {
+                if (nearbySearchResults != null && nearbySearchResults.length() > 0 && !isNewDistanceSelected) {
                     parsePlaceObject(null);
                 } else {
                     performPlacesRequest();
+                    isNewDistanceSelected = false;
                 }
             }
         }
@@ -207,9 +216,7 @@ public class MainActivity
     SeekBar.OnSeekBarChangeListener distanceSeekChangedListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            // update text indicator
-            distanceText.setText(String.valueOf(progress));
-            customSearchMeters = getMetersFromMiles(progress);
+            distanceText.setText(String.valueOf(progress) + " miles");
         }
 
         @Override
@@ -219,7 +226,13 @@ public class MainActivity
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
+            // update text indicator
+            int value = seekBar.getProgress();
 
+            if(value != Integer.valueOf(customSearchMeters) / 1609) {
+                customSearchMeters = getMetersFromMiles(value);
+                isNewDistanceSelected = true;
+            }
         }
     };
 
@@ -539,7 +552,8 @@ public class MainActivity
         restaurantText.setText(currentPlace.name);
 
         // Rating
-        restaurantRatingText.setText("Rating: " + currentPlace.rating);
+        restaurantRatingText.setText("Rating: ");
+        ratingBar.setRating(currentPlace.rating);
 
         // Price level - make this customizable
         restaurantPriceLevelText.setText(currentPlace.getPriceLevelText(currentPlace.priceLevel));
